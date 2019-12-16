@@ -23,14 +23,22 @@ void user_setup(void) {
   pinMode(PIR, INPUT);
 }
 
+void open_eyes() {
+  Serial.printf("Opening eyes.\n");
+  state = ACTIVE;
+  arcada.setBacklight(255);
+}
+
+void close_eyes() {
+  Serial.printf("Starting the sleep.\n");
+  state = START_SLEEPING;
+}
+
 void toggle_state() {
   if(state == ACTIVE) {
-    state = START_SLEEPING;
-    Serial.printf("Set state: start sleep\n");
+    close_eyes();
   } else if(state == OFF) {
-    state = ACTIVE;
-    Serial.printf("Set state: active\n");
-    arcada.setBacklight(255);
+    open_eyes();
   } else {
     Serial.printf("No state change.\n");
   }
@@ -71,7 +79,7 @@ void user_loop(void) {
     if(PIR_state == LOW) {
       Serial.printf("Motion detected!\n");
       PIR_state = HIGH;
-      arcada.setBacklight(255);
+      open_eyes();
     }
   } else {
     if(PIR_state == HIGH) {
@@ -81,7 +89,7 @@ void user_loop(void) {
     }
     else if(state == ACTIVE && micros() - start_time > 5000000) {
       Serial.printf("Timeout elapsed, starting to sleep.\n");
-      state = START_SLEEPING;
+      close_eyes();
     }
   }
 /*
